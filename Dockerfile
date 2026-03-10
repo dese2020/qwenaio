@@ -1,5 +1,5 @@
 # Use specific version of nvidia cuda image
-FROM wlsdml1114/multitalk-base:1.7 as runtime
+FROM wlsdml1114/multitalk-base:1.8 as runtime
 
 # wget 설치 (URL 다운로드를 위해)
 RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
@@ -33,5 +33,11 @@ RUN wget -q https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/spl
 
 COPY . .
 RUN chmod +x /entrypoint.sh
+
+# Precalentar ComfyUI al construir la imagen
+RUN python /ComfyUI/main.py --listen --use-sage-attention & \
+    PID=$! && \
+    sleep 90 && \
+    kill $PID || true
 
 CMD ["/entrypoint.sh"]
