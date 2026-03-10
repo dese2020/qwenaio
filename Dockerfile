@@ -14,10 +14,10 @@ RUN git clone https://github.com/comfyanonymous/ComfyUI.git && \
     cd ComfyUI && \
     pip install --no-cache-dir -r requirements.txt
 
-RUN cd /ComfyUI/custom_nodes/ && \
-    git clone https://github.com/ltdrdata/ComfyUI-Manager.git && \
-    cd ComfyUI-Manager && \
-    pip install --no-cache-dir -r requirements.txt
+#RUN cd /ComfyUI/custom_nodes/ && \
+#    git clone https://github.com/ltdrdata/ComfyUI-Manager.git && \
+#    cd ComfyUI-Manager && \
+#    pip install --no-cache-dir -r requirements.txt
 
 RUN cd /ComfyUI/custom_nodes/ && \
     git clone https://github.com/kijai/ComfyUI-KJNodes && \
@@ -41,7 +41,7 @@ ENV COMFYUI_DISABLE_CUDA=1
 # Precalentar ComfyUI
 RUN python3 /ComfyUI/main.py --cpu --disable-auto-launch & \
     PID=$! && \
-    sleep 120 && \
+    sleep 30 && \
     kill $PID || true
 
 
