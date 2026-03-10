@@ -34,15 +34,4 @@ RUN wget -q https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/spl
 COPY . .
 RUN chmod +x /entrypoint.sh
 
-ENV CUDA_VISIBLE_DEVICES=""
-ENV PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-ENV COMFYUI_DISABLE_CUDA=1
-
-# Precalentar ComfyUI
-RUN python3 /ComfyUI/main.py --cpu --disable-auto-launch & \
-    PID=$! && \
-    sleep 30 && \
-    kill $PID || true
-
-
 CMD ["/entrypoint.sh"]
