@@ -41,7 +41,7 @@ ENV COMFYUI_DISABLE_CUDA=1
 # Precalentar ComfyUI
 RUN python3 /ComfyUI/main.py --cpu --disable-auto-launch & \
     PID=$! && \
-    sleep 60 && \
+    sleep 120 && \
     kill $PID || true
 
 
