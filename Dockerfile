@@ -34,10 +34,16 @@ RUN wget -q https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/spl
 COPY . .
 RUN chmod +x /entrypoint.sh
 
-# Precalentar ComfyUI al construir la imagen
-RUN python /ComfyUI/main.py --listen --use-sage-attention & \
+
+# Evitar acceso a GPU durante el build
+ENV CUDA_VISIBLE_DEVICES=""
+ENV TORCH_CUDA_ARCH_LIST=""
+
+# Precalentar ComfyUI
+RUN python3 /ComfyUI/main.py --disable-auto-launch & \
     PID=$! && \
-    sleep 90 && \
+    sleep 60 && \
     kill $PID || true
+
 
 CMD ["/entrypoint.sh"]
