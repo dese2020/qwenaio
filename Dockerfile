@@ -34,13 +34,12 @@ RUN wget -q https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/spl
 COPY . .
 RUN chmod +x /entrypoint.sh
 
-
-# Evitar acceso a GPU durante el build
 ENV CUDA_VISIBLE_DEVICES=""
-ENV TORCH_CUDA_ARCH_LIST=""
+ENV PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+ENV COMFYUI_DISABLE_CUDA=1
 
 # Precalentar ComfyUI
-RUN python3 /ComfyUI/main.py --disable-auto-launch & \
+RUN python3 /ComfyUI/main.py --cpu --disable-auto-launch & \
     PID=$! && \
     sleep 60 && \
     kill $PID || true
