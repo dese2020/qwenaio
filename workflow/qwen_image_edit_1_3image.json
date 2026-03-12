@@ -156,7 +156,7 @@
   },
   "110": {
     "inputs": {
-      "prompt": "",
+      "prompt": "low quality, worst quality, low resolution, blurry, out of focus, noise, jpeg artifacts, compression artifacts, pixelated, oversharpened, overexposed, underexposed, bad lighting, color banding, distorted colors, unrealistic colors, bad anatomy, bad proportions, malformed hands, extra fingers, missing fingers, fused fingers, extra limbs, duplicate limbs, deformed face, asymmetrical eyes, crossed eyes, bad teeth, mutated body parts, unnatural pose, warped perspective, stretched objects, floating objects, duplicate objects, messy background, cluttered background, watermark, signature, logo, text, caption, frame, border, cropped, cut off, out of frame, glitch, artifacts, rendering errors",
       "clip": [
         "38",
         0
