@@ -1,6 +1,10 @@
 # Use specific version of nvidia cuda image
 FROM wlsdml1114/multitalk-base:1.8 as runtime
 
+RUN pip uninstall -y torch torchvision torchaudio
+
+RUN pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+
 # wget 설치 (URL 다운로드를 위해)
 RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
