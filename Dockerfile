@@ -3,17 +3,14 @@ FROM hearmeman/comfyui-minimax-template:v1 AS runtime
 # Set working directory
 WORKDIR /
 
-# Activar hf_transfer para descargas ultrarrápidas
-ENV HF_HUB_ENABLE_HF_TRANSFER=1
-
 # 1. Descarga del modelo principal en un RUN independiente
-RUN huggingface-cli download Phr00t/Qwen-Image-Edit-Rapid-AIO \
+RUN hf download Phr00t/Qwen-Image-Edit-Rapid-AIO \
     v23/Qwen-Rapid-AIO-NSFW-v23.safetensors \
     --local-dir /ComfyUI/models/diffusion_models/ && \
     rm -rf ~/.cache/huggingface
 
 # 2. Descarga del resto de los modelos (Text Encoder y VAE) en otro RUN
-RUN huggingface-cli download Comfy-Org/Qwen-Image_ComfyUI \
+RUN hf download Comfy-Org/Qwen-Image_ComfyUI \
     split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors \
     split_files/vae/qwen_image_vae.safetensors \
     --local-dir /tmp/qwen_downloads/ && \
