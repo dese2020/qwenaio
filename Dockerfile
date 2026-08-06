@@ -1,35 +1,26 @@
-# Use specific version of nvidia cuda image
-FROM wlsdml1114/multitalk-base:1.8 as runtime
-
-# wget 설치 (URL 다운로드를 위해)
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
-
-RUN pip install -U "huggingface_hub[hf_transfer]"
-RUN pip install runpod websocket-client librosa
+FROM hearmeman/comfyui-minimax-template:v1 AS runtime
 
 # Set working directory
 WORKDIR /
 
-RUN git clone https://github.com/comfyanonymous/ComfyUI.git && \
-    cd ComfyUI && \
-    pip install --no-cache-dir -r requirements.txt
+# Activar hf_transfer para descargas ultrarrápidas
+ENV HF_HUB_ENABLE_HF_TRANSFER=1
 
-#RUN cd /ComfyUI/custom_nodes/ && \
-#    git clone https://github.com/ltdrdata/ComfyUI-Manager.git && \
-#    cd ComfyUI-Manager && \
-#    pip install --no-cache-dir -r requirements.txt
+# 1. Descarga del modelo principal en un RUN independiente
+RUN huggingface-cli download Phr00t/Qwen-Image-Edit-Rapid-AIO \
+    v23/Qwen-Rapid-AIO-NSFW-v23.safetensors \
+    --local-dir /ComfyUI/models/diffusion_models/ && \
+    rm -rf ~/.cache/huggingface
 
-RUN cd /ComfyUI/custom_nodes/ && \
-    git clone https://github.com/kijai/ComfyUI-KJNodes && \
-    cd ComfyUI-KJNodes && \
-    pip install --no-cache-dir -r requirements.txt
-
-# Download models
-#RUN wget -q https://huggingface.co/Comfy-Org/Qwen-Image-Edit_ComfyUI/resolve/main/split_files/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors -O /ComfyUI/models/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors
-RUN wget -q https://huggingface.co/Phr00t/Qwen-Image-Edit-Rapid-AIO/resolve/main/v23/Qwen-Rapid-AIO-NSFW-v23.safetensors -O /ComfyUI/models/diffusion_models/Qwen-Rapid-AIO-NSFW-v23.safetensors
-#RUN wget -q https://huggingface.co/lightx2v/Qwen-Image-Edit-2511-Lightning/resolve/main/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors -O /ComfyUI/models/loras/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors
-RUN wget -q https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors -O /ComfyUI/models/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors 
-RUN wget -q https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/split_files/vae/qwen_image_vae.safetensors -O /ComfyUI/models/vae/qwen_image_vae.safetensors
+# 2. Descarga del resto de los modelos (Text Encoder y VAE) en otro RUN
+RUN huggingface-cli download Comfy-Org/Qwen-Image_ComfyUI \
+    split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors \
+    split_files/vae/qwen_image_vae.safetensors \
+    --local-dir /tmp/qwen_downloads/ && \
+    mkdir -p /ComfyUI/models/text_encoders /ComfyUI/models/vae && \
+    mv /tmp/qwen_downloads/split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors /ComfyUI/models/text_encoders/ && \
+    mv /tmp/qwen_downloads/split_files/vae/qwen_image_vae.safetensors /ComfyUI/models/vae/ && \
+    rm -rf /tmp/qwen_downloads ~/.cache/huggingface
 
 COPY . .
 RUN chmod +x /entrypoint.sh
