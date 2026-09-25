@@ -2,7 +2,7 @@
   "3": {
     "inputs": {
       "seed": 433157373746597,
-      "steps": 4,
+      "steps": 25,
       "cfg": 1,
       "sampler_name": "euler",
       "scheduler": "simple",
@@ -47,7 +47,7 @@
   },
   "37": {
     "inputs": {
-      "unet_name": "Qwen-Rapid-AIO-NSFW-v23.safetensors",
+      "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
@@ -57,7 +57,7 @@
   },
   "38": {
     "inputs": {
-      "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+      "clip_name": "qwen3vl_8b_int8_convrot.safetensors",
       "type": "qwen_image",
       "device": "default"
     },
@@ -68,7 +68,7 @@
   },
   "39": {
     "inputs": {
-      "vae_name": "qwen_image_vae.safetensors"
+      "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
     },
     "class_type": "VAELoader",
     "_meta": {
