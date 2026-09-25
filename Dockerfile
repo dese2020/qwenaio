@@ -18,10 +18,10 @@ WORKDIR /
 #     cd ComfyUI && \
 #     pip install --no-cache-dir -r requirements.txt
 
-RUN cd /ComfyUI/custom_nodes/ && \
-    git clone https://github.com/kijai/ComfyUI-KJNodes && \
-    cd ComfyUI-KJNodes && \
-    pip install --no-cache-dir -r requirements.txt
+#RUN cd /ComfyUI/custom_nodes/ && \
+#    git clone https://github.com/kijai/ComfyUI-KJNodes && \
+#    cd ComfyUI-KJNodes && \
+#    pip install --no-cache-dir -r requirements.txt
 
 # Download models - Qwen-Image-2.1 (Comfy-Org)
 RUN hf download Comfy-Org/Qwen-Image-2.1 diffusion_models/qwen_image_2.1_int8_convrot.safetensors --local-dir /tmp/hf_dl && \
