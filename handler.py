@@ -11,6 +11,7 @@ import urllib.parse
 import binascii # Base64 에러 처리를 위해 import
 import subprocess
 import time
+import shutil
 
 
 # 로깅 설정
@@ -106,6 +107,8 @@ def get_images(ws, prompt):
         out = ws.recv()
         if isinstance(out, str):
             message = json.loads(out)
+            if message['type'] == 'execution_error' and message['data'].get('prompt_id') == prompt_id:
+                raise Exception(f"ComfyUI execution_error: {message['data'].get('exception_message')}")
             if message['type'] == 'executing':
                 data = message['data']
                 if data['node'] is None and data['prompt_id'] == prompt_id:
@@ -235,6 +238,17 @@ def handler(job):
         else:
             break
 
+    # LoadImage de ComfyUI espera un nombre de archivo dentro de /ComfyUI/input
+    comfy_input_dir = os.getenv("COMFY_INPUT_DIR", "/ComfyUI/input")
+    os.makedirs(comfy_input_dir, exist_ok=True)
+    staged = []
+    for idx, src in enumerate(image_paths, start=1):
+        ext = os.path.splitext(src)[1] or ".jpg"
+        name = f"{task_id}_{idx}{ext}"
+        shutil.copyfile(src, os.path.join(comfy_input_dir, name))
+        staged.append(name)
+    image_paths = staged
+
     num_images = len(image_paths)
     if num_images == 0:
         return {"error": "최소 1개의 이미지 입력이 필요합니다. (image_path / image_url / image_base64 중 하나)"}
@@ -271,7 +285,7 @@ def handler(job):
     http_url = f"http://{server_address}:8188/"
     logger.info(f"Checking HTTP connection to: {http_url}")
     
-    # HTTP 연결 확인 (최대 1분)
+    # HTTP 연결 확인 (최대 3분)
     max_http_attempts = 180
     for http_attempt in range(max_http_attempts):
         try:
@@ -287,7 +301,7 @@ def handler(job):
     
     ws = websocket.WebSocket()
     # 웹소켓 연결 시도 (최대 3분)
-    max_attempts = int(180/5)  # 3분 (1초에 한 번씩 시도)
+    max_attempts = int(180/5)  # 3분 (5초에 한 번씩 시도)
     for attempt in range(max_attempts):
         try:
             ws.connect(ws_url)
