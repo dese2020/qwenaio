@@ -1,5 +1,5 @@
 # Imagen base con ComfyUI ya instalado en /ComfyUI
-FROM hearmeman/comfyui-minimax-template:v8 AS runtime
+FROM hearmeman/comfyui-minimax-template:v9 AS runtime
 
 # wget (para descargar imagenes por URL) y curl (para el healthcheck del entrypoint)
 RUN apt-get update && apt-get install -y wget curl && rm -rf /var/lib/apt/lists/*
