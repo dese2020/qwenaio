@@ -1,90 +1,70 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status.
-set -e
-
-# CUDA 검사 및 설정
+# Sin "set -e" global: manejamos los errores explicitamente
 echo "Checking CUDA availability..."
 
-# Python을 통한 CUDA 검사
-python_cuda_check() {
-    python3 -c "
-import torch
+python3 - <<'PY'
+import sys
 try:
+    import torch
     if torch.cuda.is_available():
-        print('CUDA_AVAILABLE')
-        exit(0)
-    else:
-        print('CUDA_NOT_AVAILABLE')
-        exit(1)
+        sys.exit(0)
+    print("CUDA_NOT_AVAILABLE"); sys.exit(1)
 except Exception as e:
-    print(f'CUDA_ERROR: {e}')
-    exit(2)
-" 2>/dev/null
-}
-
-# CUDA 검사 실행
-cuda_status=$(python_cuda_check)
-case $? in
+    print(f"CUDA_ERROR: {e}"); sys.exit(2)
+PY
+rc=$?
+case $rc in
     0)
         echo "✅ CUDA is available and working (Python check)"
         export CUDA_VISIBLE_DEVICES=0
         export FORCE_CUDA=1
         ;;
-    1)
-        echo "❌ CUDA is not available (Python check)"
-        echo "Error: CUDA is required but not available. Exiting..."
-        exit 1
-        ;;
-    2)
-        echo "❌ CUDA check failed (Python check)"
-        echo "Error: CUDA initialization failed. Exiting..."
+    *)
+        echo "❌ CUDA check failed (code $rc). Exiting..."
         exit 1
         ;;
 esac
 
-# 추가적인 nvidia-smi 검사
-if command -v nvidia-smi &> /dev/null; then
-    if nvidia-smi &> /dev/null; then
-        echo "✅ NVIDIA driver working (nvidia-smi check)"
-    else
-        echo "❌ NVIDIA driver found but not working"
-        echo "Error: NVIDIA driver is not working properly. Exiting..."
-        exit 1
-    fi
+if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
+    echo "✅ NVIDIA driver working (nvidia-smi check)"
 else
-    echo "❌ NVIDIA driver not found"
-    echo "Error: NVIDIA driver is required but not found. Exiting..."
+    echo "❌ NVIDIA driver not found or not working. Exiting..."
     exit 1
 fi
 
-# CUDA 환경 변수 설정
 echo "Using CUDA device: $CUDA_VISIBLE_DEVICES"
 
-# Start ComfyUI in the background
+# Arranca ComfyUI en background y guarda su PID
 echo "Starting ComfyUI in the background..."
 python /ComfyUI/main.py --listen --use-sage-attention &
+COMFY_PID=$!
 
-# Wait for ComfyUI to be ready
 echo "Waiting for ComfyUI to be ready..."
-max_wait=120  # 최대 2분 대기
-wait_count=0
-while [ $wait_count -lt $max_wait ]; do
+max_wait=300   # segundos
+elapsed=0
+ready=0
+while [ $elapsed -lt $max_wait ]; do
+    # Si ComfyUI murio, no tiene sentido seguir esperando
+    if ! kill -0 "$COMFY_PID" 2>/dev/null; then
+        echo "❌ ComfyUI process died during startup (ver traceback arriba). Exiting..."
+        exit 1
+    fi
     if curl -s http://127.0.0.1:8188/ > /dev/null 2>&1; then
         echo "ComfyUI is ready!"
+        ready=1
         break
     fi
-    echo "Waiting for ComfyUI... ($wait_count/$max_wait)"
+    echo "Waiting for ComfyUI... ($elapsed/$max_wait)"
     sleep 2
-    wait_count=$((wait_count + 2))
+    elapsed=$((elapsed + 2))
 done
 
-if [ $wait_count -ge $max_wait ]; then
-    echo "Error: ComfyUI failed to start within $max_wait seconds"
+if [ $ready -ne 1 ]; then
+    echo "❌ ComfyUI failed to start within $max_wait seconds"
     exit 1
 fi
 
-# Start the handler in the foreground
-# 이 스크립트가 컨테이너의 메인 프로세스가 됩니다.
 echo "Starting the handler..."
+cd /
 exec python handler.py
