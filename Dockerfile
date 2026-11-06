@@ -20,10 +20,12 @@ ENV HF_HUB_ENABLE_HF_TRANSFER=1
 WORKDIR /
 
 # Modelos - Qwen-Image-2.1 (Comfy-Org)
-RUN hf download Comfy-Org/Qwen-Image-2.1 diffusion_models/qwen_image_2.1_int8_convrot.safetensors --local-dir /tmp/hf_dl && \
-    mv /tmp/hf_dl/diffusion_models/qwen_image_2.1_int8_convrot.safetensors /ComfyUI/models/diffusion_models/
+RUN hf download chatrlabs/Qwen-Image-2.1-Uncensored-Omni-Quantized qwen-image-2.1-step90000-INT8-ConvRot-comfy.safetensors --local-dir /tmp/hf_dl && \
+    mv /tmp/hf_dl/diffusion_models/qwen-image-2.1-step90000-INT8-ConvRot-comfy.safetensors /ComfyUI/models/diffusion_models/qwen_image_2.1_int8_convrot.safetensors
+	
 RUN hf download Comfy-Org/Qwen-Image-2.1 text_encoders/qwen3vl_8b_int8_convrot.safetensors --local-dir /tmp/hf_dl && \
     mv /tmp/hf_dl/text_encoders/qwen3vl_8b_int8_convrot.safetensors /ComfyUI/models/text_encoders/
+	
 RUN hf download Comfy-Org/Qwen-Image-2.1 vae/qwen_image_2.1_vae_bf16.safetensors --local-dir /tmp/hf_dl && \
     mv /tmp/hf_dl/vae/qwen_image_2.1_vae_bf16.safetensors /ComfyUI/models/vae/ && \
     rm -rf /tmp/hf_dl
