@@ -21,7 +21,7 @@ WORKDIR /
 
 # Modelos - Qwen-Image-2.1 (Comfy-Org)
 RUN hf download chatrlabs/Qwen-Image-2.1-Uncensored-Omni-Quantized qwen-image-2.1-step90000-INT8-ConvRot-comfy.safetensors --local-dir /tmp/hf_dl/qwen_image_2.1_int8_convrot.safetensors && \
-    mv /tmp/hf_dl/diffusion_models/qwen_image_2.1_int8_convrot.safetensors /ComfyUI/models/diffusion_models/
+    mv /tmp/hf_dl/qwen_image_2.1_int8_convrot.safetensors /ComfyUI/models/diffusion_models/
 	
 RUN hf download Comfy-Org/Qwen-Image-2.1 text_encoders/qwen3vl_8b_int8_convrot.safetensors --local-dir /tmp/hf_dl && \
     mv /tmp/hf_dl/text_encoders/qwen3vl_8b_int8_convrot.safetensors /ComfyUI/models/text_encoders/
