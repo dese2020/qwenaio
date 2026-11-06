@@ -2,9 +2,9 @@
   "3": {
     "inputs": {
       "seed": 433157373746597,
-      "steps": 25,
-      "cfg": 1,
-      "sampler_name": "euler",
+      "steps": 35,
+      "cfg": 5,
+      "sampler_name": "er_sde",
       "scheduler": "simple",
       "denoise": 1,
       "model": [
